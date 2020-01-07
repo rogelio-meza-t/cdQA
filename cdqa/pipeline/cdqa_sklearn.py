@@ -4,6 +4,9 @@ import warnings
 import pandas as pd
 import numpy as np
 import torch
+import inspect
+
+from typing import List
 
 from sklearn.base import BaseEstimator
 
@@ -135,6 +138,7 @@ class QAPipeline(BaseEstimator):
         n_predictions: int = None,
         retriever_score_weight: float = 0.35,
         return_all_preds: bool = False,
+        extra_metadata: List[str] = [],
     ):
         """ Compute prediction of an answer to a question
 
@@ -165,7 +169,6 @@ class QAPipeline(BaseEstimator):
         given the question.
 
         """
-
         if not isinstance(query, str):
             raise TypeError(
                 "The input is not a string. Please provide a string as input."
@@ -180,13 +183,16 @@ class QAPipeline(BaseEstimator):
             best_idx_scores=best_idx_scores,
             metadata=self.metadata,
             retrieve_by_doc=self.retrieve_by_doc,
+            extra_metadata=extra_metadata,
         )
+        self.processor_predict.set_extra_metadata(extra_metadata)
         examples, features = self.processor_predict.fit_transform(X=squad_examples)
         prediction = self.reader.predict(
             X=(examples, features),
             n_predictions=n_predictions,
             retriever_score_weight=retriever_score_weight,
             return_all_preds=return_all_preds,
+            extra_metadata=extra_metadata,
         )
         return prediction
 

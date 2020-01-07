@@ -61,7 +61,7 @@ def df2squad(df, squad_version="v1.1", output_dir=None, filename=None):
     return json_data
 
 
-def generate_squad_examples(question, best_idx_scores, metadata, retrieve_by_doc):
+def generate_squad_examples(question, best_idx_scores, metadata, retrieve_by_doc, extra_metadata):
     """
     Creates a SQuAD examples json object for a given for a given question using outputs of retriever and document database.
 
@@ -94,6 +94,8 @@ def generate_squad_examples(question, best_idx_scores, metadata, retrieve_by_doc
 
     for idx, row in metadata_sliced.iterrows():
         temp = {"title": row["title"], "paragraphs": []}
+        for data in extra_metadata:
+            temp[data] = row[data]
 
         if retrieve_by_doc:
             for paragraph in row["paragraphs"]:
